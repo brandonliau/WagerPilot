@@ -1,4 +1,5 @@
 from fractions import Fraction
+import math
 
 def convertToDecimal(odds: int|float|str) -> float:
     if isinstance(odds, float): # Nothing to convert
@@ -30,7 +31,6 @@ def convertToAmerican(odds: int|float|str) -> int:
 def convertToFractional(odds: int|float|str) -> Fraction:
     if isinstance(odds, str): # Nothing to convert
         return odds
-    
     elif isinstance(odds, float): # Convert deciaml to fractional
         odds = Fraction(odds - 1/ 1)
         if odds.denominator == 1:
@@ -43,3 +43,18 @@ def convertToFractional(odds: int|float|str) -> Fraction:
             return (f'{odds}/1')
         else:
             return odds
+        
+def calculateParlay(odds: list) -> float:
+    return math.prod(odds)
+
+def calculatePayout(stake: float, odds: int|float|str) -> float:
+    odds = convertToDecimal(odds)
+    return (odds * stake)
+
+def calculateProfit(stake: float, odds: int|float|str) -> float:
+    payout = calculatePayout(stake, odds)
+    return (payout - stake)
+
+def calculateImpliedProbability(odds) -> float:
+    odds = convertToDecimal(odds)
+    return (f'{(1/odds) * 100}%')
