@@ -1,7 +1,7 @@
 import config as con
+from pprint import pprint
 import requests
 import json
-from pprint import pprint
 
 def sportsAPI():
     oddsAPIKey = next(con.oddsAPIKeyCycle)
@@ -32,12 +32,10 @@ def getActiveEvents(sportsList):
         eventDict[sport] = tempList
     return eventDict
 
-def writeToJson():
-    sportsList = getActiveSports()
-    for sport in sportsList:
-        json_object = json.dumps(eventsAPI(sport), indent=4)
-        with open("output.json", "a") as outfile:
-            outfile.write(json_object)
+def writeToJson(input):
+    json_object = json.dumps(input, indent=4)
+    with open("output.json", "w") as outfile:
+        outfile.write(json_object)
 
 def getKeyQuotas():
     keyUsage = {}
