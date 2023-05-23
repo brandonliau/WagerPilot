@@ -47,14 +47,6 @@ def convertToFractional(odds: int|float|str) -> Fraction:
 def calculateParlay(odds: list) -> float:
     return math.prod(odds)
 
-def calculatePayout(stake: float, odds: int|float|str) -> float:
-    odds = convertToDecimal(odds)
-    return (odds * stake)
-
-def calculateProfit(stake: float, odds: int|float|str) -> float:
-    payout = calculatePayout(stake, odds)
-    return (payout - stake)
-
 def calculateImpliedProbability(odds) -> float:
     odds = convertToDecimal(odds)
     return (f'{(1/odds) * 100}%')

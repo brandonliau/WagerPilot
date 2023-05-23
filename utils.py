@@ -1,6 +1,16 @@
 import getData as data
 from pprint import pprint
-import pandas as pd
+import json
+
+def writeToJson(input):
+    json_object = json.dumps(input, indent=4)
+    with open("output.json", "w") as file:
+        file.write(json_object)
+
+def writeToDict(input):
+    with open(input) as file:
+        output = json.load(file)
+    return output
 
 def findArbitrage():
     activeSports = data.getActiveSports()
@@ -40,6 +50,6 @@ def findArbitrage():
                     aribtrageOpportunity[event['id']] = tempDict
     return aribtrageOpportunity
 
-arbitrage = findArbitrage()
-data.writeToJson(arbitrage)
-pprint(findArbitrage())
+# arbitrage = findArbitrage()
+# writeToJson(arbitrage)
+# pprint(findArbitrage())
