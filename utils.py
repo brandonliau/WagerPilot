@@ -1,18 +1,29 @@
 import getData as data
-from pprint import pprint
 import json
 
-def writeToJson(input):
-    json_object = json.dumps(input, indent=4)
-    with open("output.json", "w") as file:
+def writeToJson(toWrite: dict, fileName: str) -> None:
+    """
+    :param: Data to write (eg. getActiveSports())
+    :return: None
+    """
+    json_object = json.dumps(toWrite, indent=4)
+    with open(fileName, 'w') as file:
         file.write(json_object)
 
-def writeToDict(input):
-    with open(input) as file:
+def readToDict(toRead: json) -> dict:
+    """
+    :param: Data to read (eg. 'output.json')
+    :return: Data read from json file
+    """
+    with open(toRead, 'r') as file:
         output = json.load(file)
     return output
 
-def findArbitrage():
+def findArbitrage() -> dict:
+    """
+    :param: None
+    :return: All arbitrage opportunities
+    """
     activeSports = data.getActiveSports()
     aribtrageOpportunity = {}
     for sport in activeSports:
@@ -49,7 +60,3 @@ def findArbitrage():
                     tempDict['EV'] = ev
                     aribtrageOpportunity[event['id']] = tempDict
     return aribtrageOpportunity
-
-# arbitrage = findArbitrage()
-# writeToJson(arbitrage)
-# pprint(findArbitrage())
