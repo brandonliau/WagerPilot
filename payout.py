@@ -4,7 +4,7 @@ import odds as odd
 
 def calculatePayout(stake: float, odds: int|float|str) -> float:
     """
-    :param: Amount to bet and odds (given in any format)
+    :param: Amount to bet and odds (any format)
     :return: Payout
     """
     odds = odd.convertToDecimal(odds)
@@ -12,7 +12,7 @@ def calculatePayout(stake: float, odds: int|float|str) -> float:
 
 def calculateProfit(stake: float, odds: int|float|str) -> float:
     """
-    :param: Amount to bet and odds (given in any format)
+    :param: Amount to bet and odds (any format)
     :return: Profit (payout - stake)
     """
     payout = calculatePayout(stake, odds)

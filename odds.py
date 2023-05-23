@@ -2,6 +2,10 @@ from fractions import Fraction
 import math
 
 def convertToDecimal(odds: int|float|str) -> float:
+    """
+    :param: Odds (any format)
+    :return: Odds in decimal format
+    """
     if isinstance(odds, float): # Nothing to convert
         return odds
     elif isinstance(odds, int): # Convert American to decimal
@@ -14,6 +18,10 @@ def convertToDecimal(odds: int|float|str) -> float:
         return float(odds + 1)
         
 def convertToAmerican(odds: int|float|str) -> int:
+    """
+    :param: Odds (any format)
+    :return: Odds in American format
+    """
     if isinstance(odds, int): # Nothing to convert
         return odds
     elif isinstance(odds, float): # Convert decimal to American
@@ -29,6 +37,10 @@ def convertToAmerican(odds: int|float|str) -> int:
             return int(-100 / odds)
 
 def convertToFractional(odds: int|float|str) -> Fraction:
+    """
+    :param: Odds (any format)
+    :return: Odds in fractional format
+    """
     if isinstance(odds, str): # Nothing to convert
         return odds
     elif isinstance(odds, float): # Convert deciaml to fractional
@@ -45,8 +57,17 @@ def convertToFractional(odds: int|float|str) -> Fraction:
             return odds
         
 def calculateParlay(odds: list) -> float:
+    """
+    :param: List of odds (any format)
+    :return: Parlay odds in decimal format
+    """
+    odds = list(map(convertToDecimal, odds))
     return math.prod(odds)
 
 def calculateImpliedProbability(odds) -> float:
+    """
+    :param: Odds (any format)
+    :return: Implied probability
+    """
     odds = convertToDecimal(odds)
     return (f'{(1/odds) * 100}%')
