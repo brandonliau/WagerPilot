@@ -56,7 +56,7 @@ def getBestOdds(events: dict, eventID: str) -> dict:
     bestOdds['awayTeamOdds'] = events[eventID]['awayTeamOdds']
     return bestOdds
 
-def getKeyUsage(key: str ='all') -> dict:
+def getKeyUsage(key: str = 'all') -> dict:
     """
     :param: None
     :return: Reamaining requests and requests used for all API keys
