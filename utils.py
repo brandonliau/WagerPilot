@@ -1,9 +1,9 @@
 import getData as data
 import json
 
-def writeToJson(toWrite: dict, fileName: str) -> None:
+def writeToJson(toWrite: dict, fileName: json) -> None:
     """
-    :param: Data to write (eg. getActiveSports())
+    :param: Data to write (eg. getActiveSports()) and file to write to (eg. 'output.json')
     :return: None
     """
     json_object = json.dumps(toWrite, indent=4)
@@ -13,7 +13,7 @@ def writeToJson(toWrite: dict, fileName: str) -> None:
 def readToDict(toRead: json) -> dict:
     """
     :param: Data to read (eg. 'output.json')
-    :return: Data read from json file
+    :return: Data from json file
     """
     with open(toRead, 'r') as file:
         output = json.load(file)
@@ -24,11 +24,9 @@ def findArbitrage() -> dict:
     :param: None
     :return: All arbitrage opportunities
     """
-    activeSports = data.getActiveSports()
-    aribtrageOpportunity = {}
-    for sport in activeSports:
-        events = data.eventsAPI(sport)
-        for event in events:
+    aribtrageOpportunities = {}
+    for sport in data.getActiveSports():
+        for event in data.eventsAPI(sport):
             tempDict = {}
             home_team = event['home_team']
             away_team = event['away_team']
@@ -55,8 +53,8 @@ def findArbitrage() -> dict:
                             tempDict['awayBookie'] = [bookie['key']]
                         elif item['name'] == away_team and item['price'] == tempDict['awayTeamOdds']:
                             tempDict['awayBookie'].append(bookie['key'])
-                ev = 1/tempDict['homeTeamOdds'] + 1/tempDict['awayTeamOdds']
+                ev = (1/tempDict['homeTeamOdds']) + (1/tempDict['awayTeamOdds'])
                 if ev < 1:
                     tempDict['EV'] = ev
-                    aribtrageOpportunity[event['id']] = tempDict
-    return aribtrageOpportunity
+                    aribtrageOpportunities[event['id']] = tempDict
+    return aribtrageOpportunities
