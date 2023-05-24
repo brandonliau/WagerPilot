@@ -1,5 +1,6 @@
 import getData as data
 import utils as util
+import os
 
 def findArbitrage() -> dict:
     """
@@ -59,16 +60,24 @@ def findArbitrage() -> dict:
                     aribtrageOpportunities[event['id']] = tempDict
     return aribtrageOpportunities
 
-def calculateArbitrageStake(eventID: str, stake: float, bias: str = 'none') -> dict:
+def calculateArbitrageStake(eventID: str, stake: float, bias: str = 'none', filePath: str = None) -> dict:
     """
     :param: Event to bet on and total amount to bet with
     :return: Amount to bet on each team of an event
     """
-    output = util.readToDict('output2.json')
-    odds = data.getArbOdds(output, eventID)
-    homeTeam, awayTeam, draw = odds['homeTeam'], odds['awayTeam'], odds['draw']
-    homeOdds, awayOdds, drawOdds = odds['homeOdds'], odds['awayOdds'], odds['drawOdds']
-    homePercentage, awayPercentage, drawPercentage = 1/(homeOdds), 1/(awayOdds), util.div(1, drawOdds)
+    try:
+        output = util.readToDict(filePath)
+    except FileNotFoundError:
+        print('Input file does not exist!')
+        exit()
+    try:
+        odds = data.getArbOdds(output, eventID)
+        homeTeam, awayTeam, draw = odds['homeTeam'], odds['awayTeam'], odds['draw']
+        homeOdds, awayOdds, drawOdds = odds['homeOdds'], odds['awayOdds'], odds['drawOdds']
+        homePercentage, awayPercentage, drawPercentage = 1/(homeOdds), 1/(awayOdds), util.div(1, drawOdds)
+    except:
+        print('Input file is not formatted correctly!')
+        exit()
     if bias == 'none':
         totalPercentage = homePercentage + awayPercentage + drawPercentage
         toWagerOnHome  = (homePercentage / totalPercentage) * stake

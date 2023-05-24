@@ -23,6 +23,10 @@ def readToDict(toRead: json) -> dict:
     return output
 
 def div(x,y):
+    """
+    :param: Two numbers
+    :return: The quotient of the two numbers
+    """
     try:
         return x/y
     except TypeError:
