@@ -1,6 +1,5 @@
 import config as con
 import requests
-from pprint import pprint
 
 def sportsAPI() -> dict:
     """
@@ -41,20 +40,25 @@ def getActiveEvents() -> dict:
     activeEvents = {}
     for sport in getActiveSports():
         for event in eventsAPI(sport):
-            activeEvents[event['id']] = {'homeTeam': event['home_team'], 'awayTeam': event['away_team']}
+            draw = False
+            if len(event['bookmakers']) > 0:
+                for item in event['bookmakers']: 
+                    if len(item['markets'][0]['outcomes']) == 3:
+                        draw = True
+            activeEvents[event['id']] = {'homeTeam': event['home_team'], 'awayTeam': event['away_team'], 'draw': draw}
     return activeEvents
 
-def getBestOdds(events: dict, eventID: str) -> dict:
+def getOdds(events: dict, eventID: str) -> dict:
     """
     :param: Events (eg. obtained from eventsAPI)
     :return: Best odds for the given event
     """
-    bestOdds = {}
-    bestOdds['homeTeam'] = events[eventID]['homeTeam']
-    bestOdds['awayTeam'] = events[eventID]['awayTeam']
-    bestOdds['homeTeamOdds'] = events[eventID]['homeTeamOdds']
-    bestOdds['awayTeamOdds'] = events[eventID]['awayTeamOdds']
-    return bestOdds
+    odds = {}
+    odds['homeTeam'] = events[eventID]['homeTeam']
+    odds['awayTeam'] = events[eventID]['awayTeam']
+    odds['homeTeamOdds'] = events[eventID]['homeTeamOdds']
+    odds['awayTeamOdds'] = events[eventID]['awayTeamOdds']
+    return odds
 
 def getKeyUsage(key: str = 'all') -> dict:
     """

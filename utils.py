@@ -7,7 +7,7 @@ def writeToJson(toWrite: dict, fileName: json) -> None:
     :return: None
     """
     json_object = json.dumps(toWrite, indent=4)
-    with open(fileName, 'w') as file:
+    with open(fileName, 'a') as file:
         file.write(json_object)
 
 def readToDict(toRead: json) -> dict:
