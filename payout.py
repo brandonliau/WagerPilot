@@ -24,7 +24,7 @@ def calculateArbitrageStake(eventID: str, stake: float, bias: str = 'none') -> d
     :return: Amount to bet on each team of an event
     """
     output = util.readToDict('output.json')
-    odds = data.getOdds(output, eventID)
+    odds = data.getArbOdds(output, eventID)
     homeTeam, awayTeam = odds['homeTeam'], odds['awayTeam']
     homeTeamOdds, awayTeamOdds = odds['homeTeamOdds'], odds['awayTeamOdds']
     total = homeTeamOdds + awayTeamOdds

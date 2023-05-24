@@ -48,17 +48,19 @@ def getActiveEvents() -> dict:
             activeEvents[event['id']] = {'homeTeam': event['home_team'], 'awayTeam': event['away_team'], 'draw': draw}
     return activeEvents
 
-def getOdds(events: dict, eventID: str) -> dict:
+def getArbOdds(arbOpportunities: dict, eventID: str) -> dict:
     """
-    :param: Events (eg. obtained from eventsAPI)
-    :return: Best odds for the given event
+    :param: Arbitrage opportunities (eg. obtained from findArbitrage)
+    :return: Odds for the arbitrage opportunity
     """
-    odds = {}
-    odds['homeTeam'] = events[eventID]['homeTeam']
-    odds['awayTeam'] = events[eventID]['awayTeam']
-    odds['homeTeamOdds'] = events[eventID]['homeTeamOdds']
-    odds['awayTeamOdds'] = events[eventID]['awayTeamOdds']
-    return odds
+    getArbOdds = {}
+    getArbOdds['homeTeam'] = arbOpportunities[eventID]['homeTeam']
+    getArbOdds['awayTeam'] = arbOpportunities[eventID]['awayTeam']
+    getArbOdds['homeTeamOdds'] = arbOpportunities[eventID]['homeTeamOdds']
+    getArbOdds['awayTeamOdds'] = arbOpportunities[eventID]['awayTeamOdds']
+    # getArbOdds['draw'] = 'draw'
+    # getArbOdds['drawOdds'] = arbOpportunities[eventID]['awayTeamOdds']
+    return getArbOdds
 
 def getKeyUsage(key: str = 'all') -> dict:
     """
