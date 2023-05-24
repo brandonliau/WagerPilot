@@ -1,68 +1,24 @@
 import getData as data
 import utils as util
-import time
 
-def findArbitrage(writeToFile: bool = True, fileName: str = None) -> dict:
+def findArbitrage(writeToFile: bool = True, fileName: str = None, readFileName: str = None) -> dict:
     """
     :param: None
     :return: All arbitrage opportunities
     """
     aribtrageOpportunities = {}
-    for sport in data.getActiveSports():
-        for event in data.eventsAPI(sport):
-            tempDict = {}
-            home_team = event['home_team']
-            away_team = event['away_team']
-            tempDict['homeTeam'] = home_team
-            tempDict['awayTeam'] = away_team
-            tempDict['draw'] = False
-            for bookie in event['bookmakers']:
-                if len(tempDict) == 3:
-                    tempDict['homeBookie'] = [bookie['key']]
-                    tempDict['awayBookie'] = [bookie['key']]
-                    tempDict['drawBookie'] = None
-                    for item in bookie['markets'][0]['outcomes']:
-                        if item['name'] == home_team:
-                            tempDict['homeOdds'] = item['price']
-                        if item['name'] == away_team:
-                            tempDict['awayOdds'] = item['price']
-                        if item['name'] == 'Draw':
-                            tempDict['drawBookie'] = [bookie['key']]
-                            tempDict['drawOdds'] = item['price']
-                            tempDict['draw'] = True
-                        else:
-                            tempDict['drawBookie'] = None
-                            tempDict['drawOdds'] = None
-                else:
-                    for item in bookie['markets'][0]['outcomes']:
-                        if item['name'] == home_team and item['price'] > tempDict['homeOdds']:
-                            tempDict['homeOdds'] = item['price']
-                            tempDict['homeBookie'] = [bookie['key']]
-                        elif item['name'] == home_team and item['price'] == tempDict['homeOdds']:
-                            tempDict['homeBookie'].append(bookie['key'])
-                        if item['name'] == away_team and item['price'] > tempDict['awayOdds']:
-                            tempDict['awayOdds'] = item['price']
-                            tempDict['awayBookie'] = [bookie['key']]
-                        elif item['name'] == away_team and item['price'] == tempDict['awayOdds']:
-                            tempDict['awayBookie'].append(bookie['key'])
-                        if item['name'] == 'Draw' and (tempDict['drawOdds'] is None or item['price'] > tempDict['drawOdds']):
-                            tempDict['drawOdds'] = item['price']
-                            tempDict['drawBookie'] = [bookie['key']]
-                            tempDict['draw'] = True
-                        elif item['name'] == 'Draw' and item['price'] == tempDict['drawOdds']:
-                            tempDict['drawBookie'].append(bookie['key'])
-                if tempDict['draw'] == True:
-                    impliedProbability = (1/tempDict['homeOdds']) + (1/tempDict['awayOdds'] + 1/tempDict['drawOdds'])
-                else: 
-                    impliedProbability = (1/tempDict['homeOdds']) + (1/tempDict['awayOdds'])
-                if impliedProbability < 1:
-                    tempDict['impliedProbability'] = impliedProbability
-                    aribtrageOpportunities[event['id']] = tempDict
-    if writeToFile == True and fileName == None:
-        localTime = time.strftime("%H:%M:%S", time.localtime())
-        util.writeToJson(aribtrageOpportunities, fileName = f'{localTime}.json')
-    elif writeToFile == True:
-        util.writeToJson(aribtrageOpportunities, fileName = f'{fileName}.json')
+    if readFileName == None:
+        bestOdds = data.getBestOdds()
+    else:
+        bestOdds = util.readToDict(readFileName)
+    for event in bestOdds:
+        impliedProbability = 1/bestOdds[event]['homeOdds'] + 1/bestOdds[event]['awayOdds'] + util.div(1, bestOdds[event]['drawOdds'])
+        if impliedProbability < 1:
+            bestOddsCopy = bestOdds[event].copy()
+            bestOddsCopy['impliedProbability'] = impliedProbability
+            aribtrageOpportunities[event] = bestOddsCopy
+    if writeToFile == True:
+        util.writeToJson(aribtrageOpportunities, fileName)
     return aribtrageOpportunities
 
 def calculateArbitrageStake(eventID: str, stake: float, bias: str = 'none', filePath: str = None) -> dict:

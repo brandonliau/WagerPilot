@@ -35,7 +35,10 @@ def calculateArbitragePayout(eventID: str, stake: float, bias: str = 'none', fil
     homeStake, awayStake = stake[homeTeam], stake[awayTeam]
     homePayout = calculatePayout(homeStake, homeOdds)
     awayPayout = calculatePayout(awayStake, awayOdds)
-    return {homeTeam: homePayout, awayTeam: awayPayout, 'Draw': drawPayout}
+    if draw == False:
+        return {homeTeam: homePayout, awayTeam: awayPayout}
+    elif draw == True:
+        return {homeTeam: homePayout, awayTeam: awayPayout, 'Draw': drawPayout}
 
 def calculateArbitrageProfit(eventID: str, stake: float, bias: str = 'none', filePath: str = None):
     payout = calculateArbitragePayout(eventID, stake, bias, filePath)
@@ -50,4 +53,7 @@ def calculateArbitrageProfit(eventID: str, stake: float, bias: str = 'none', fil
         drawProfit = round((payout['Draw'] - stake), 2)
     homeProfit = round((payout[homeTeam] - stake), 2)
     awayProfit = round((payout[awayTeam] - stake), 2)
-    return {homeTeam: homeProfit, awayTeam: awayProfit, 'Draw': drawProfit}
+    if draw == False:
+        return {homeTeam: homeProfit, awayTeam: awayProfit}
+    elif draw == True:
+        return {homeTeam: homeProfit, awayTeam: awayProfit, 'Draw': drawProfit}

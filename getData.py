@@ -1,5 +1,7 @@
 import config as con
+import utils as util
 import requests
+import time
 
 def sportsAPI() -> dict:
     """
@@ -48,20 +50,70 @@ def getActiveEvents() -> dict:
             activeEvents[event['id']] = {'homeTeam': event['home_team'], 'awayTeam': event['away_team'], 'draw': draw}
     return activeEvents
 
-def getOdds(arbOpportunities: dict, eventID: str) -> dict:
+def getOdds(bestOdds: dict, eventID: str) -> dict:
     """
-    :param: Arbitrage opportunities (eg. obtained from findArbitrage)
-    :return: Odds for the arbitrage opportunity
+    :param: Best odds (eg. obtained from bestOdds)
+    :return: Odds for the given event
     """
     odds = {}
-    odds['homeTeam'] = arbOpportunities[eventID]['homeTeam']
-    odds['awayTeam'] = arbOpportunities[eventID]['awayTeam']
-    odds['homeOdds'] = arbOpportunities[eventID]['homeOdds']
-    odds['awayOdds'] = arbOpportunities[eventID]['awayOdds']
-    odds['draw'] = arbOpportunities[eventID]['draw']
-    odds['drawOdds'] = arbOpportunities[eventID]['drawOdds']
+    odds['homeTeam'] = bestOdds[eventID]['homeTeam']
+    odds['awayTeam'] = bestOdds[eventID]['awayTeam']
+    odds['homeOdds'] = bestOdds[eventID]['homeOdds']
+    odds['awayOdds'] = bestOdds[eventID]['awayOdds']
+    odds['draw'] = bestOdds[eventID]['draw']
+    odds['drawOdds'] = bestOdds[eventID]['drawOdds']
     return odds
 
+def getBestOdds(writeToFile: bool = True, fileName: str = None):
+    bestOdds = {}
+    for sport in getActiveSports():
+        for event in eventsAPI(sport):
+            tempDict = {}
+            home_team = event['home_team']
+            away_team = event['away_team']
+            tempDict['homeTeam'] = home_team
+            tempDict['awayTeam'] = away_team
+            tempDict['draw'] = False
+            for bookie in event['bookmakers']:
+                if len(tempDict) == 3:
+                    tempDict['homeBookie'] = [bookie['key']]
+                    tempDict['awayBookie'] = [bookie['key']]
+                    tempDict['drawBookie'] = None
+                    for item in bookie['markets'][0]['outcomes']:
+                        if item['name'] == home_team:
+                            tempDict['homeOdds'] = item['price']
+                        if item['name'] == away_team:
+                            tempDict['awayOdds'] = item['price']
+                        if item['name'] == 'Draw':
+                            tempDict['drawBookie'] = [bookie['key']]
+                            tempDict['drawOdds'] = item['price']
+                            tempDict['draw'] = True
+                        else:
+                            tempDict['drawBookie'] = None
+                            tempDict['drawOdds'] = None
+                else:
+                    for item in bookie['markets'][0]['outcomes']:
+                        if item['name'] == home_team and item['price'] > tempDict['homeOdds']:
+                            tempDict['homeOdds'] = item['price']
+                            tempDict['homeBookie'] = [bookie['key']]
+                        elif item['name'] == home_team and item['price'] == tempDict['homeOdds']:
+                            tempDict['homeBookie'].append(bookie['key'])
+                        if item['name'] == away_team and item['price'] > tempDict['awayOdds']:
+                            tempDict['awayOdds'] = item['price']
+                            tempDict['awayBookie'] = [bookie['key']]
+                        elif item['name'] == away_team and item['price'] == tempDict['awayOdds']:
+                            tempDict['awayBookie'].append(bookie['key'])
+                        if item['name'] == 'Draw' and (tempDict['drawOdds'] is None or item['price'] > tempDict['drawOdds']):
+                            tempDict['drawOdds'] = item['price']
+                            tempDict['drawBookie'] = [bookie['key']]
+                            tempDict['draw'] = True
+                        elif item['name'] == 'Draw' and item['price'] == tempDict['drawOdds']:
+                            tempDict['drawBookie'].append(bookie['key'])
+                bestOdds[event['id']] = tempDict
+    if writeToFile == True:
+        util.writeToJson(bestOdds, fileName)
+    return bestOdds
+    
 def getKeyUsage(key: str = 'all') -> dict:
     """
     :param: None
