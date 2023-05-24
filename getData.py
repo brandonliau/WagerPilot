@@ -56,10 +56,10 @@ def getArbOdds(arbOpportunities: dict, eventID: str) -> dict:
     getArbOdds = {}
     getArbOdds['homeTeam'] = arbOpportunities[eventID]['homeTeam']
     getArbOdds['awayTeam'] = arbOpportunities[eventID]['awayTeam']
-    getArbOdds['homeTeamOdds'] = arbOpportunities[eventID]['homeTeamOdds']
-    getArbOdds['awayTeamOdds'] = arbOpportunities[eventID]['awayTeamOdds']
-    # getArbOdds['draw'] = 'draw'
-    # getArbOdds['drawOdds'] = arbOpportunities[eventID]['awayTeamOdds']
+    getArbOdds['homeOdds'] = arbOpportunities[eventID]['homeOdds']
+    getArbOdds['awayOdds'] = arbOpportunities[eventID]['awayOdds']
+    getArbOdds['draw'] = arbOpportunities[eventID]['draw']
+    getArbOdds['drawOdds'] = arbOpportunities[eventID]['drawOdds']
     return getArbOdds
 
 def getKeyUsage(key: str = 'all') -> dict:
