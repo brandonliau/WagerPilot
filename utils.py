@@ -13,16 +13,20 @@ def writeToJson(toWrite: dict, fileName: json, overWrite: bool = True) -> None:
         with open(fileName, 'a') as file:
             file.write(json_object)
 
-def readToDict(toRead: json) -> dict:
+def readToDict(toRead: str) -> dict:
     """
     :param: Data to read (eg. 'output.json')
     :return: Data from json file
     """
-    with open(toRead, 'r') as file:
-        output = json.load(file)
-    return output
+    try:
+        with open(toRead, 'r') as file:
+            output = json.load(file)
+        return output
+    except FileNotFoundError:
+        print('Input file does not exist!')
+        exit()
 
-def div(x,y):
+def div(x: int|float, y: int|float):
     """
     :param: Two numbers
     :return: The quotient of the two numbers

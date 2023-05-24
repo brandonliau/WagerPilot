@@ -1,8 +1,8 @@
 import getData as data
 import utils as util
-import os
+import time
 
-def findArbitrage() -> dict:
+def findArbitrage(writeToFile: bool = True, fileName: str = None) -> dict:
     """
     :param: None
     :return: All arbitrage opportunities
@@ -58,6 +58,11 @@ def findArbitrage() -> dict:
                 if ev < 1:
                     tempDict['EV'] = ev
                     aribtrageOpportunities[event['id']] = tempDict
+    if writeToFile == True and fileName == None:
+        localTime = time.strftime("%H:%M:%S", time.localtime())
+        util.writeToJson(aribtrageOpportunities, fileName = f'{localTime}.json')
+    elif writeToFile == True:
+        util.writeToJson(aribtrageOpportunities, fileName = f'{fileName}.json')
     return aribtrageOpportunities
 
 def calculateArbitrageStake(eventID: str, stake: float, bias: str = 'none', filePath: str = None) -> dict:
@@ -65,13 +70,9 @@ def calculateArbitrageStake(eventID: str, stake: float, bias: str = 'none', file
     :param: Event to bet on and total amount to bet with
     :return: Amount to bet on each team of an event
     """
+    fileData = util.readToDict(filePath)
     try:
-        output = util.readToDict(filePath)
-    except FileNotFoundError:
-        print('Input file does not exist!')
-        exit()
-    try:
-        odds = data.getArbOdds(output, eventID)
+        odds = data.getOdds(fileData, eventID)
         homeTeam, awayTeam, draw = odds['homeTeam'], odds['awayTeam'], odds['draw']
         homeOdds, awayOdds, drawOdds = odds['homeOdds'], odds['awayOdds'], odds['drawOdds']
         homePercentage, awayPercentage, drawPercentage = 1/(homeOdds), 1/(awayOdds), util.div(1, drawOdds)
