@@ -52,11 +52,11 @@ def findArbitrage(writeToFile: bool = True, fileName: str = None) -> dict:
                         elif item['name'] == 'Draw' and item['price'] == tempDict['drawOdds']:
                             tempDict['drawBookie'].append(bookie['key'])
                 if tempDict['draw'] == True:
-                    ev = (1/tempDict['homeOdds']) + (1/tempDict['awayOdds'] + 1/tempDict['drawOdds'])
+                    impliedProbability = (1/tempDict['homeOdds']) + (1/tempDict['awayOdds'] + 1/tempDict['drawOdds'])
                 else: 
-                    ev = (1/tempDict['homeOdds']) + (1/tempDict['awayOdds'])
-                if ev < 1:
-                    tempDict['EV'] = ev
+                    impliedProbability = (1/tempDict['homeOdds']) + (1/tempDict['awayOdds'])
+                if impliedProbability < 1:
+                    tempDict['impliedProbability'] = impliedProbability
                     aribtrageOpportunities[event['id']] = tempDict
     if writeToFile == True and fileName == None:
         localTime = time.strftime("%H:%M:%S", time.localtime())

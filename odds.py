@@ -56,7 +56,7 @@ def convertToFractional(odds: int|float|str) -> Fraction:
         else:
             return odds
         
-def calculateParlay(odds: list) -> float:
+def calculateParlayOdds(odds: list) -> float:
     """
     :param: List of odds (any format)
     :return: Parlay odds in decimal format
