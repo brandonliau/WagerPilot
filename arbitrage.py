@@ -1,15 +1,15 @@
 import getData as data
-import discovery as disc
 import utils as util
 
-def findArbitrage(writeToFile: bool = True, fileName: str = None, readFileName: str = None) -> dict:
+def findArbitrage(readFileName: str = None, writeToFile: bool = True, writefileName: str = None) -> dict:
     """
-    :param: None
+    :param: readFileName (name of input file), writeToFile (y/n to write output to json), writefileName (name of output file)
     :return: All arbitrage opportunities
+    :usage: Fid all arbitrage opportunities
     """
     aribtrageOpportunities = {}
     if readFileName == None:
-        bestOdds = disc.findBestOdds()
+        bestOdds = data.findBestOdds()
     else:
         bestOdds = util.readFromJson(readFileName)
     for event in bestOdds:
@@ -19,24 +19,28 @@ def findArbitrage(writeToFile: bool = True, fileName: str = None, readFileName: 
             bestOddsCopy['impliedProbability'] = impliedProbability
             aribtrageOpportunities[event] = bestOddsCopy
     if writeToFile == True:
-        util.writeToJson(aribtrageOpportunities, fileName)
+        util.writeToJson(aribtrageOpportunities, writefileName)
     return aribtrageOpportunities
 
-def calculateArbitrageStake(eventID: str, stake: float, bias: str = 'none', filePath: str = None) -> dict:
+def calculateArbitrageStake(eventID: str, stake: float, bias: str = None, fileName: str = None) -> dict:
     """
-    :param: Event to bet on and total amount to bet with
-    :return: Amount to bet on each team of an event
+    :param: eventID, stake, bias (maximizes payout for biased team), fileName (name of input file)
+    :return: Amount to bet on each team
+    :usage: Calculate amount to bet on each team to achieve an arbitrage bet
     """
-    fileData = util.readFromJson(filePath)
+    if fileName == None:
+        fileData = data.findBestOdds()
+    else:
+        fileData = util.readFromJson(fileName)
     try:
-        odds = data.getOdds(fileData, eventID)
+        odds = data.getEventOdds(fileData, eventID)
         homeTeam, awayTeam, draw = odds['homeTeam'], odds['awayTeam'], odds['draw']
         homeOdds, awayOdds, drawOdds = odds['homeOdds'], odds['awayOdds'], odds['drawOdds']
         homePercentage, awayPercentage, drawPercentage = 1/(homeOdds), 1/(awayOdds), util.div(1, drawOdds)
     except:
         print('Input file is not formatted correctly!')
         exit()
-    if bias == 'none':
+    if bias == None:
         totalPercentage = homePercentage + awayPercentage + drawPercentage
         toWagerOnHome  = (homePercentage / totalPercentage) * stake
         toWagerOnAway  = (awayPercentage / totalPercentage) * stake
