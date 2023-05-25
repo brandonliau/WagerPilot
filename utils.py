@@ -15,7 +15,7 @@ def writeToJson(toWrite: dict, fileName: str = None) -> None:
         with open(fileName, 'w') as file:
             file.write(json_object)
 
-def readToDict(fileName: str) -> dict:
+def readFromJson(fileName: str) -> dict:
     """
     :param: Data to read (eg. 'output.json')
     :return: Data from json file

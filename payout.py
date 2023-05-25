@@ -21,7 +21,7 @@ def calculateProfit(stake: float, odds: int|float|str) -> float:
 
 def calculateArbitragePayout(eventID: str, stake: float, bias: str = 'none', filePath: str = None):
     stake = arb.calculateArbitrageStake(eventID, stake, bias, filePath)
-    fileData = util.readToDict(filePath)
+    fileData = util.readFromJson(filePath)
     try:
         odds = data.getOdds(fileData, eventID)
         homeTeam, awayTeam, draw = odds['homeTeam'], odds['awayTeam'], odds['draw']
@@ -42,7 +42,7 @@ def calculateArbitragePayout(eventID: str, stake: float, bias: str = 'none', fil
 
 def calculateArbitrageProfit(eventID: str, stake: float, bias: str = 'none', filePath: str = None):
     payout = calculateArbitragePayout(eventID, stake, bias, filePath)
-    fileData = util.readToDict(filePath)
+    fileData = util.readFromJson(filePath)
     try:
         odds = data.getOdds(fileData, eventID)
         homeTeam, awayTeam, draw = odds['homeTeam'], odds['awayTeam'], odds['draw']

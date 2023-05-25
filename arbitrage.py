@@ -1,4 +1,5 @@
 import getData as data
+import discovery as disc
 import utils as util
 
 def findArbitrage(writeToFile: bool = True, fileName: str = None, readFileName: str = None) -> dict:
@@ -8,9 +9,9 @@ def findArbitrage(writeToFile: bool = True, fileName: str = None, readFileName: 
     """
     aribtrageOpportunities = {}
     if readFileName == None:
-        bestOdds = data.getBestOdds()
+        bestOdds = disc.findBestOdds()
     else:
-        bestOdds = util.readToDict(readFileName)
+        bestOdds = util.readFromJson(readFileName)
     for event in bestOdds:
         impliedProbability = 1/bestOdds[event]['homeOdds'] + 1/bestOdds[event]['awayOdds'] + util.div(1, bestOdds[event]['drawOdds'])
         if impliedProbability < 1:
@@ -26,7 +27,7 @@ def calculateArbitrageStake(eventID: str, stake: float, bias: str = 'none', file
     :param: Event to bet on and total amount to bet with
     :return: Amount to bet on each team of an event
     """
-    fileData = util.readToDict(filePath)
+    fileData = util.readFromJson(filePath)
     try:
         odds = data.getOdds(fileData, eventID)
         homeTeam, awayTeam, draw = odds['homeTeam'], odds['awayTeam'], odds['draw']
