@@ -5,7 +5,7 @@ def findArbitrage(readFileName: str = None, writeToFile: bool = True, writefileN
     """
     :param: readFileName (name of input file), writeToFile (y/n to write output to json), writefileName (name of output file)
     :return: All arbitrage opportunities
-    :usage: Fid all arbitrage opportunities
+    :usage: Find all arbitrage opportunities
     """
     aribtrageOpportunities = {}
     if readFileName == None:

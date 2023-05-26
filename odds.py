@@ -69,14 +69,14 @@ def calculateParlayOdds(odds: list, rounding: int = 2) -> float:
     odds = list(map(convertToDecimal, odds))
     return round(math.prod(odds), rounding)
 
-def calculateImpliedProbability(odd) -> float:
+def calculateImpliedProbability(odds) -> float:
     """
     :param: Odds (any format)
     :return: Implied probability
     :usage: Calculate the implied probability for a given odd
     """
-    odd = convertToDecimal(odd)
-    impliedProbability = round(util.div(1, odd) * 100, 2)
+    odds = convertToDecimal(odds)
+    impliedProbability = round(util.div(1, odds) * 100, 2)
     return (f'{impliedProbability}%')
 
 def calculateTotalImpliedProbability(homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:

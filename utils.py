@@ -25,7 +25,6 @@ def eventsAPI(sportKey: str) -> dict:
     response = requests.request("GET", url)
     return(response.json())
 
-
 def keyUsage(key: str = 'all') -> dict:
     """
     :param: Specific API key (optional)
@@ -48,7 +47,7 @@ def keyUsage(key: str = 'all') -> dict:
         keyUsage[key] = {'Remaining': requestsRemaining, 'Used': requestsUsed}
     return(keyUsage)
 
-def div(x: int|float, y: int|float):
+def div(x: float, y: float):
     """
     :param: x, y
     :return: Quotient of x and y
