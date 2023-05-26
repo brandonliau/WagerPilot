@@ -1,6 +1,6 @@
 import utils as util
 
-def getActiveSports() -> list:
+def activeSports(writeToFile: bool = False, fileName: str = None) -> list:
     """
     :param: None
     :return: All active sports excluding those with outrights
@@ -10,16 +10,18 @@ def getActiveSports() -> list:
     for sport in util.sportsAPI():
         if sport['active'] == True and sport['has_outrights'] == False: 
             activeSports.append(sport['key'])
+    if writeToFile == True:
+        util.writeToJson(activeSports, fileName)
     return activeSports
 
-def getActiveEvents() -> dict:
+def activeEvents(writeToFile: bool = False, fileName: str = None) -> dict:
     """
     :param: None
     :return: All active events, competeting teams, and draw possiblility
     :usage: Processes raw event data
     """
     activeEvents = {}
-    for sport in getActiveSports():
+    for sport in activeSports():
         for event in util.eventsAPI(sport):
             draw = False
             if len(event['bookmakers']) > 0:
@@ -27,22 +29,25 @@ def getActiveEvents() -> dict:
                     if len(item['markets'][0]['outcomes']) == 3:
                         draw = True
             activeEvents[event['id']] = {'homeTeam': event['home_team'], 'awayTeam': event['away_team'], 'draw': draw}
+    if writeToFile == True:
+        util.writeToJson(activeEvents, fileName)
     return activeEvents
 
-def getAllOdds(writeToFile: bool = True, fileName: str = None):
+def allOdds(writeToFile: bool = False, fileName: str = None):
     """
     :param: writeToFile (y/n to write output to json), fileName (name of output file)
     :return: All active events, competing teams, odds, and bookmakers
     :usage: Processes raw event data
     """
     allOdds = {}
-    for sport in getActiveSports():
+    for sport in activeSports():
         for event in util.eventsAPI(sport):
             outerTempDict = {}
             home_team, away_team, draw = event['home_team'], event['away_team'], False
             for bookie in event['bookmakers']:
                 innerTempDict = {}
                 for item in bookie['markets'][0]['outcomes']:
+                    avg = 0
                     if item['name'] == home_team:
                         innerTempDict['homeTeam'] = item['price']
                     if item['name'] == away_team:
@@ -57,14 +62,14 @@ def getAllOdds(writeToFile: bool = True, fileName: str = None):
         util.writeToJson(allOdds, fileName)
     return allOdds
 
-def getBestOdds(writeToFile: bool = True, fileName: str = None):
+def bestOdds(writeToFile: bool = False, fileName: str = None):
     """
     :param: writeToFile (y/n to write output to json), fileName (name of output file)
     :return: All active events, competing teams, best odds, and best bookmakers
     :usage: Processes raw event data
     """
     bestOdds = {}
-    for sport in getActiveSports():
+    for sport in activeSports():
         for event in util.eventsAPI(sport):
             tempDict = {}
             home_team, away_team = event['home_team'], event['away_team']
@@ -110,10 +115,14 @@ def getBestOdds(writeToFile: bool = True, fileName: str = None):
         util.writeToJson(bestOdds, fileName)
     return bestOdds
 
-def getEventOdds(data: dict, eventID: str) -> dict:
+def eventOdds(data: dict|str, eventID: str) -> dict:
     """
-    :param: data (eg. output from getAllOdds), eventID (event to search)
+    :param: data (eg. from getAllOdds), eventID
     :return: Event odds and bookmakers for a given event
     :usage: Obtains odds data for a specific event
     """
-    return data[eventID]
+    if isinstance(data, dict):
+        return data[eventID]
+    elif isinstance(data, str):
+        data = util.readFromJson(data)
+        return data[eventID]

@@ -1,8 +1,10 @@
 from fractions import Fraction
+from decimal import Decimal
+import getData as data
 import utils as util
 import math
 
-def convertToDecimal(odds: int|float|str) -> float:
+def toDecimal(odds: int|float|str) -> float:
     """
     :param: Odds (any format)
     :return: Odds in decimal format
@@ -19,7 +21,7 @@ def convertToDecimal(odds: int|float|str) -> float:
         odds = Fraction(odds)
         return float(odds + 1)
         
-def convertToAmerican(odds: int|float|str) -> int:
+def toAmerican(odds: int|float|str) -> int:
     """
     :param: Odds (any format)
     :return: Odds in American format
@@ -39,7 +41,7 @@ def convertToAmerican(odds: int|float|str) -> int:
         elif odds.numerator < odds.denominator:
             return int(-100 / odds)
 
-def convertToFractional(odds: int|float|str) -> Fraction:
+def toFractional(odds: int|float|str) -> Fraction:
     """
     :param: Odds (any format)
     :return: Odds in fractional format
@@ -48,55 +50,75 @@ def convertToFractional(odds: int|float|str) -> Fraction:
     if isinstance(odds, str): # Nothing to convert
         return odds
     elif isinstance(odds, float): # Convert deciaml to fractional
-        odds = Fraction(odds - 1/ 1)
+        odds = Decimal(str(odds))
+        odds = Fraction((odds - 1) / 1)
         if odds.denominator == 1:
             return (f'{odds}/1')
         else:
             return odds
     elif isinstance(odds, int): # Convert American to fractional
-        odds = Fraction(odds/100)
+        odds = Fraction(odds / 100)
         if odds.denominator == 1:
             return (f'{odds}/1')
         else:
             return odds
 
-def calculateParlayOdds(odds: list, rounding: int = 2) -> float:
+def parlayOdds(odds: list) -> float:
     """
     :param: List of odds (any format)
     :return: Overall parlay odds
     :usage: Calculate overall odds for a parlay
     """
-    odds = list(map(convertToDecimal, odds))
-    return round(math.prod(odds), rounding)
+    parlay = list(map(toDecimal, odds))
+    return math.prod(parlay)
 
-def calculateImpliedProbability(odds) -> float:
+def impliedProbability(odds: float) -> float:
     """
     :param: Odds (any format)
     :return: Implied probability
     :usage: Calculate the implied probability for a given odd
     """
-    odds = convertToDecimal(odds)
-    impliedProbability = round(util.div(1, odds) * 100, 2)
-    return (f'{impliedProbability}%')
-
-def calculateTotalImpliedProbability(homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:
+    impliedProb = toDecimal(odds)
+    return util.div(1, impliedProb)
+    
+def totalImpliedProbability(homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:
     """
     :param: homeOdds, awayOdds, drawOdds (any format)
     :return: Total implied probability
     :usage: Calculate the implied probability for the given odds
     """
-    homeOdds, awayOdds, drawOdds = convertToDecimal(homeOdds), convertToDecimal(awayOdds), convertToDecimal(drawOdds)
-    total = 1/homeOdds + 1/awayOdds + util.div(1, drawOdds)
-    total = round(total * 100, 2)
-    return (f'{total}%')
+    totalImpliedProb = impliedProbability(homeOdds) + impliedProbability(awayOdds) + impliedProbability(drawOdds)
+    return totalImpliedProb
 
-def calculateVig(homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:
+def vig(homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:
     """
     :param: homeOdds, awayOdds, drawOdds (any format)
     :return: Vigorish
-    :usage: Calculate the implied probability for the given odds
+    :usage: Calculate the vig for the given odds
     """
-    homeOdds, awayOdds, drawOdds = convertToDecimal(homeOdds), convertToDecimal(awayOdds), convertToDecimal(drawOdds)
-    total = 1/homeOdds + 1/awayOdds + util.div(1, drawOdds)
-    vig = round((total * 100) - 100, 2)
-    return (f'{vig}%')
+    total = totalImpliedProbability(homeOdds, awayOdds, drawOdds)
+    return (total - 1)
+
+def trueProability(homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:
+    """
+    :param: homeOdds, awayOdds, drawOdds (any format)
+    :return: True proabability of each event
+    :usage: Calculate the true probability of each event happen for the given odds
+    """
+    total = totalImpliedProbability(homeOdds, awayOdds, drawOdds)
+    homeTrue = (1 / homeOdds) / total
+    awayTrue = (1 / awayOdds) / total
+    drawTrue = (util.div(1, drawOdds)) / total
+    return {'homeTrue': homeTrue, 'awayTrue': awayTrue, 'drawTrue': drawTrue}
+
+def fairOdds(homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:
+    """
+    :param: homeOdds, awayOdds, drawOdds (any format)
+    :return: Fair odds of each event
+    :usage: Calculate the fair odds for the given odds
+    """
+    trueProb = trueProability(homeOdds, awayOdds, drawOdds)
+    homeFair = 1 / trueProb['homeTrue']
+    awayFair = 1 / trueProb['awayTrue']
+    drawFair = util.div(1, trueProb['drawTrue'])
+    return {'homeFair': homeFair, 'awayFair': awayFair, 'drawFair': drawFair}
