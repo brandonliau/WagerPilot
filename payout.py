@@ -80,12 +80,15 @@ def expectedValue(toBet: str, homeOdds: float, awayOdds: float, drawOdds: float 
     :usage: Calculate the expected value for a bet given the odds of an event
     """
     trueProb = odd.trueProability(homeOdds, awayOdds, drawOdds)
+    homeOdds, awayOdds, drawOdds = odd.toDecimal(homeOdds), odd.toDecimal(awayOdds), odd.toDecimal(drawOdds)
     if toBet == 'home':
         winProb = trueProb['homeTrue']
+        winProfit = profit(1, homeOdds)
     elif toBet == 'away':
         winProb = trueProb['awayTrue']
+        winProfit = profit(1, awayOdds)
     elif drawOdds != None and toBet == 'draw':
         winProb = trueProb['drawTrue']
+        winProfit = profit(1, drawOdds)
     loseProb = 1 - winProb
-    winProfit = profit(1, homeOdds)
     return (winProfit * winProb) - (1 * loseProb)

@@ -106,6 +106,7 @@ def trueProability(homeOdds: float, awayOdds: float, drawOdds: float = None) -> 
     :usage: Calculate the true probability of each event happen for the given odds
     """
     total = totalImpliedProbability(homeOdds, awayOdds, drawOdds)
+    homeOdds, awayOdds, drawOdds = toDecimal(homeOdds), toDecimal(awayOdds), toDecimal(drawOdds) 
     homeTrue = (1 / homeOdds) / total
     awayTrue = (1 / awayOdds) / total
     drawTrue = (util.div(1, drawOdds)) / total
