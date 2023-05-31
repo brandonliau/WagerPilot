@@ -33,9 +33,9 @@ def activeEvents(writeToFile: bool = False, fileName: str = None) -> dict:
         util.writeToJson(activeEvents, fileName)
     return activeEvents
 
-def allOdds(writeToFile: bool = False, fileName: str = None):
+def allOdds(includeLay: bool = True, writeToFile: bool = False, fileName: str = None) -> dict:
     """
-    :param: writeToFile (y/n to write output to json), fileName (name of output file)
+    :param: includeLay (y/n to include lays), writeToFile (y/n to write output to json), fileName (name of output file)
     :return: All active events, competing teams, odds, and bookmakers
     :usage: Processes raw event data
     """
@@ -46,15 +46,18 @@ def allOdds(writeToFile: bool = False, fileName: str = None):
             home_team, away_team, draw = event['home_team'], event['away_team'], False
             for bookie in event['bookmakers']:
                 innerTempDict = {}
-                for item in bookie['markets'][0]['outcomes']:
-                    avg = 0
-                    if item['name'] == home_team:
-                        innerTempDict['homeTeam'] = item['price']
-                    if item['name'] == away_team:
-                        innerTempDict['awayTeam'] = item['price']
-                    if item['name'] == 'Draw':
-                        innerTempDict['draw'] = item['price']
-                        draw = True
+                for market in bookie['markets']:
+                    for outcome in market['outcomes']:
+                        lay = ''
+                        if includeLay == True and market['key'] == 'h2h_lay':
+                            lay = '_lay'
+                        if outcome['name'] == home_team:
+                            innerTempDict[f'homeTeam{lay}'] = outcome['price']
+                        if outcome['name'] == away_team:
+                            innerTempDict[f'awayTeam{lay}'] = outcome['price']
+                        if outcome['name'] == 'Draw':
+                            innerTempDict[f'draw{lay}'] = outcome['price']
+                            draw = True
                 outerTempDict[bookie['key']] = innerTempDict
             if len(outerTempDict) > 0:
                 allOdds[event['id']] = {'homeTeam': home_team, 'awayTeam': away_team, 'draw': draw, 'odds': outerTempDict}
@@ -62,7 +65,7 @@ def allOdds(writeToFile: bool = False, fileName: str = None):
         util.writeToJson(allOdds, fileName)
     return allOdds
 
-def bestOdds(writeToFile: bool = False, fileName: str = None):
+def bestOdds(writeToFile: bool = False, fileName: str = None) -> dict:
     """
     :param: writeToFile (y/n to write output to json), fileName (name of output file)
     :return: All active events, competing teams, best odds, and best bookmakers
@@ -117,7 +120,7 @@ def bestOdds(writeToFile: bool = False, fileName: str = None):
 
 def eventOdds(data: dict|str, eventID: str) -> dict:
     """
-    :param: data (eg. from getAllOdds), eventID
+    :param: data (eg. from allOdds), eventID
     :return: Event odds and bookmakers for a given event
     :usage: Obtains odds data for a specific event
     """

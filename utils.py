@@ -60,7 +60,7 @@ def div(x: float, y: float):
 
 def writeToJson(data: dict, fileName: str = None) -> None:
     """
-    :param: data (eg. from getAllOdds), fileName (name of output file)
+    :param: data (eg. from allOdds), fileName (name of output file)
     :return: None
     :usage: Write dictionary data to json file
     """
