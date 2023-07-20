@@ -1,4 +1,4 @@
-import utils as util
+import wagerpilot.utils as util
 
 def activeSports(writeToFile: bool = False, fileName: str = None) -> list:
     """

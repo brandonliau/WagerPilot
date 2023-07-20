@@ -1,8 +1,9 @@
+# Standard library imports
 from fractions import Fraction
 from decimal import Decimal
-import getData as data
-import utils as util
 import math
+# Local imports
+import wagerpilot.utils as util
 
 def toDecimal(odds: int|float|str) -> float:
     """
@@ -21,25 +22,29 @@ def toDecimal(odds: int|float|str) -> float:
         odds = Fraction(odds)
         return float(odds + 1)
         
-def toAmerican(odds: int|float|str) -> int:
+def toAmerican(odds: int|float|str) -> str:
     """
     :param: Odds (any format)
     :return: Odds in American format
     :usage: Convert odds to American format
     """
     if isinstance(odds, int): # Nothing to convert
-        return odds
+        pass
     elif isinstance(odds, float): # Convert decimal to American
         if odds >= 2.0:
-            return int((odds - 1)*100)
+            odds = int((odds - 1)*100)
         elif odds < 2.0:
-            return int(-100/(odds - 1))
+            odds = int(-100/(odds - 1))
     elif isinstance(odds, str): # Convert fractional to American
         odds = Fraction(odds)
         if odds.numerator > odds.denominator:
-            return int(odds * 100)
+            odds = int(odds * 100)
         elif odds.numerator < odds.denominator:
-            return int(-100 / odds)
+            odds = int(-100 / odds)
+    if odds > 0:
+        return(f'+{odds}')
+    else:
+        return(f'{odds}')
 
 def toFractional(odds: int|float|str) -> Fraction:
     """
@@ -51,28 +56,19 @@ def toFractional(odds: int|float|str) -> Fraction:
         return odds
     elif isinstance(odds, float): # Convert deciaml to fractional
         odds = Decimal(str(odds))
-        odds = Fraction((odds - 1) / 1)
+        odds = Fraction((odds - 1) / 1).limit_denominator()
         if odds.denominator == 1:
             return (f'{odds}/1')
         else:
             return odds
     elif isinstance(odds, int): # Convert American to fractional
-        odds = Fraction(odds / 100)
+        odds = Fraction(odds / 100).limit_denominator()
         if odds.denominator == 1:
             return (f'{odds}/1')
         else:
             return odds
 
-def parlayOdds(odds: list) -> float:
-    """
-    :param: List of odds (any format)
-    :return: Overall parlay odds
-    :usage: Calculate overall odds for a parlay
-    """
-    parlay = list(map(toDecimal, odds))
-    return math.prod(parlay)
-
-def impliedProbability(odds: float) -> float:
+def impliedProbability(odds: int|float|str) -> float:
     """
     :param: Odds (any format)
     :return: Implied probability
@@ -80,8 +76,17 @@ def impliedProbability(odds: float) -> float:
     """
     impliedProb = toDecimal(odds)
     return util.div(1, impliedProb)
+
+def parlayOdds(odds: int|float|str) -> float:
+    """
+    :param: List of odds (any format)
+    :return: Overall parlay odds
+    :usage: Calculate overall odds for a parlay
+    """
+    parlay = list(map(toDecimal, odds))
+    return math.prod(parlay)
     
-def totalImpliedProbability(homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:
+def totalImpliedProbability(homeOdds: int|float|str, awayOdds: int|float|str, drawOdds: int|float|str = None) -> float:
     """
     :param: homeOdds, awayOdds, drawOdds (any format)
     :return: Total implied probability
@@ -90,7 +95,7 @@ def totalImpliedProbability(homeOdds: float, awayOdds: float, drawOdds: float = 
     totalImpliedProb = impliedProbability(homeOdds) + impliedProbability(awayOdds) + impliedProbability(drawOdds)
     return totalImpliedProb
 
-def vig(homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:
+def vig(homeOdds: int|float|str, awayOdds: int|float|str, drawOdds: int|float|str = None) -> float:
     """
     :param: homeOdds, awayOdds, drawOdds (any format)
     :return: Vigorish
@@ -99,7 +104,7 @@ def vig(homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:
     total = totalImpliedProbability(homeOdds, awayOdds, drawOdds)
     return (total - 1)
 
-def trueProability(homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:
+def trueProability(homeOdds: int|float|str, awayOdds: int|float|str, drawOdds: int|float|str = None) -> dict:
     """
     :param: homeOdds, awayOdds, drawOdds (any format)
     :return: True proabability of each event
@@ -112,7 +117,7 @@ def trueProability(homeOdds: float, awayOdds: float, drawOdds: float = None) -> 
     drawTrue = (util.div(1, drawOdds)) / total
     return {'homeTrue': homeTrue, 'awayTrue': awayTrue, 'drawTrue': drawTrue}
 
-def fairOdds(homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:
+def fairOdds(homeOdds: int|float|str, awayOdds: int|float|str, drawOdds: int|float|str = None) -> dict:
     """
     :param: homeOdds, awayOdds, drawOdds (any format)
     :return: Fair odds of each event

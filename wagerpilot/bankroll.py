@@ -1,5 +1,5 @@
-import getData as data
-import odds as odd
+import wagerpilot.getData as data
+import wagerpilot.odds as odd
 
 def mariaStaking(bankroll: float, odds: float):
     """

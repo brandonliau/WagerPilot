@@ -1,7 +1,10 @@
-import config as con
+# Standard library imports
+import time, json
+# Third party imports
+from prettytable import PrettyTable
 import requests
-import json
-import time
+# Local imports
+import wagerpilot.config as con
 
 def sportsAPI() -> dict:
     """
