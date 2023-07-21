@@ -62,7 +62,7 @@ def toFractional(odds: int|float|str) -> Fraction:
         else:
             return odds
     elif isinstance(odds, int): # Convert American to fractional
-        odds = Fraction(odds / 100).limit_denominator()
+        odds = Fraction(odds / 100).limit_denominator() if odds > 0 else Fraction(-100 / odds).limit_denominator()
         if odds.denominator == 1:
             return (f'{odds}/1')
         else:

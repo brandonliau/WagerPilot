@@ -1,7 +1,8 @@
-import getData as get
-import arbitrage as arb
-import utils as util
-import odds as odd
+# Local imports
+import wagerpilot.getData as get
+import wagerpilot.arbitrage as arb
+import wagerpilot.utils as util
+import wagerpilot.odds as odd
 
 def payout(stake: float, odds: int|float|str) -> float:
     """
@@ -20,6 +21,26 @@ def profit(stake: float, odds: int|float|str) -> float:
     """
     profit = payout(stake, odds) - stake
     return profit
+
+def expectedValue(toBet: str, homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:
+    """
+    :param: toBet (team to bet on), homeOdds, awayOdds, drawOdds (any format)
+    :return: Expected value for given bet
+    :usage: Calculate the expected value for a bet given the odds of an event
+    """
+    trueProb = odd.trueProability(homeOdds, awayOdds, drawOdds)
+    homeOdds, awayOdds, drawOdds = odd.toDecimal(homeOdds), odd.toDecimal(awayOdds), odd.toDecimal(drawOdds)
+    if toBet == 'home':
+        winProb = trueProb['homeTrue']
+        winProfit = profit(1, homeOdds)
+    elif toBet == 'away':
+        winProb = trueProb['awayTrue']
+        winProfit = profit(1, awayOdds)
+    elif drawOdds != None and toBet == 'draw':
+        winProb = trueProb['drawTrue']
+        winProfit = profit(1, drawOdds)
+    loseProb = 1 - winProb
+    return (winProfit * winProb) - (1 * loseProb)
 
 def arbitragePayout(eventID: str, stake: float, bias: str = 'none', fileName: str = None) -> dict:
     """
@@ -73,22 +94,3 @@ def arbitrageProfit(eventID: str, stake: float, bias: str = 'none', fileName: st
     elif draw == True:
         return {homeTeam: homeProfit, awayTeam: awayProfit, 'Draw': drawProfit}
 
-def expectedValue(toBet: str, homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:
-    """
-    :param: toBet (team to bet on), homeOdds, awayOdds, drawOdds (any format)
-    :return: Expected value for given bet
-    :usage: Calculate the expected value for a bet given the odds of an event
-    """
-    trueProb = odd.trueProability(homeOdds, awayOdds, drawOdds)
-    homeOdds, awayOdds, drawOdds = odd.toDecimal(homeOdds), odd.toDecimal(awayOdds), odd.toDecimal(drawOdds)
-    if toBet == 'home':
-        winProb = trueProb['homeTrue']
-        winProfit = profit(1, homeOdds)
-    elif toBet == 'away':
-        winProb = trueProb['awayTrue']
-        winProfit = profit(1, awayOdds)
-    elif drawOdds != None and toBet == 'draw':
-        winProb = trueProb['drawTrue']
-        winProfit = profit(1, drawOdds)
-    loseProb = 1 - winProb
-    return (winProfit * winProb) - (1 * loseProb)

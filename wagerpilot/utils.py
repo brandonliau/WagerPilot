@@ -1,7 +1,6 @@
 # Standard library imports
 import time, json
 # Third party imports
-from prettytable import PrettyTable
 import requests
 # Local imports
 import wagerpilot.config as con
@@ -17,14 +16,15 @@ def sportsAPI() -> dict:
     response = requests.request("GET", url)
     return(response.json())
 
-def eventsAPI(sportKey: str) -> dict:
+def eventsAPI(sportKey: str, regions) -> dict:
     """
-    :param: sportKey (eg. americanfootball_nfl)
+    :param: sportKey (eg. americanfootball_nfl), regions (eg. us,us2)
     :return: All events and other relevant data for a given sport
     :usage: Provides raw event data
     """
     oddsAPIKey = next(con.oddsAPIKeyCycle)
-    url = f'https://api.the-odds-api.com/v4/sports/{sportKey}/odds/?apiKey={oddsAPIKey}&regions=us,us2,uk,au,eu&markets=h2h&oddsFormat=decimal'
+    regions = 'us,us2,uk,au,eu'
+    url = f'https://api.the-odds-api.com/v4/sports/{sportKey}/odds/?apiKey={oddsAPIKey}&regions={regions}&markets=h2h&oddsFormat=decimal'
     response = requests.request("GET", url)
     return(response.json())
 
