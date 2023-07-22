@@ -1,9 +1,6 @@
 # Standard library imports
-from fractions import Fraction
-from decimal import Decimal
 import math
-# Local imports
-import wagerpilot.utils as util
+from fractions import Fraction
 
 def toDecimal(odds: int|float|str) -> float:
     """
@@ -62,14 +59,6 @@ def toFractional(odds: int|float|str) -> Fraction:
         return (f'{odds}/1')
     return odds
 
-def impliedProbability(odds: int|float|str) -> float:
-    """
-    :param: Odds (any format)
-    :return: Implied probability
-    :usage: Calculate the implied probability for a given odd
-    """
-    return util.div(1, toDecimal(odds))
-
 def parlayOdds(odds: int|float|str) -> float:
     """
     :param: List of odds (any format)
@@ -77,44 +66,3 @@ def parlayOdds(odds: int|float|str) -> float:
     :usage: Calculate overall odds for a parlay
     """
     return math.prod(list(map(toDecimal, odds)))
-    
-def totalImpliedProbability(homeOdds: int|float|str, awayOdds: int|float|str, drawOdds: int|float|str = None) -> float:
-    """
-    :param: homeOdds, awayOdds, drawOdds (any format)
-    :return: Total implied probability
-    :usage: Calculate the implied probability for the given odds
-    """
-    return impliedProbability(homeOdds) + impliedProbability(awayOdds) + impliedProbability(drawOdds)
-
-def vig(homeOdds: int|float|str, awayOdds: int|float|str, drawOdds: int|float|str = None) -> float:
-    """
-    :param: homeOdds, awayOdds, drawOdds (any format)
-    :return: Vigorish
-    :usage: Calculate the vig for the given odds
-    """
-    return (totalImpliedProbability(homeOdds, awayOdds, drawOdds) - 1)
-
-def trueProability(homeOdds: int|float|str, awayOdds: int|float|str, drawOdds: int|float|str = None) -> dict:
-    """
-    :param: homeOdds, awayOdds, drawOdds (any format)
-    :return: True proabability of each event
-    :usage: Calculate the true probability of each event happen for the given odds
-    """
-    total = totalImpliedProbability(homeOdds, awayOdds, drawOdds)
-    homeOdds, awayOdds, drawOdds = toDecimal(homeOdds), toDecimal(awayOdds), toDecimal(drawOdds) 
-    homeTrue = (1 / homeOdds) / total
-    awayTrue = (1 / awayOdds) / total
-    drawTrue = (util.div(1, drawOdds)) / total
-    return {'homeTrue': homeTrue, 'awayTrue': awayTrue, 'drawTrue': drawTrue}
-
-def fairOdds(homeOdds: int|float|str, awayOdds: int|float|str, drawOdds: int|float|str = None) -> dict:
-    """
-    :param: homeOdds, awayOdds, drawOdds (any format)
-    :return: Fair odds of each event
-    :usage: Calculate the fair odds for the given odds
-    """
-    trueProb = trueProability(homeOdds, awayOdds, drawOdds)
-    homeFair = 1 / trueProb['homeTrue']
-    awayFair = 1 / trueProb['awayTrue']
-    drawFair = util.div(1, trueProb['drawTrue'])
-    return {'homeFair': homeFair, 'awayFair': awayFair, 'drawFair': drawFair}

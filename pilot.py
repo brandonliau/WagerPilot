@@ -49,7 +49,7 @@ def fair(homeodds: Annotated[str, typer.Argument(help = 'Odds for home team')],
 
 @app.command()
 def stake(stake: Annotated[str, typer.Argument(help = 'Amount of money to wager')],
-          odds: Annotated[str, typer.Argument(help = 'Odds given in any format')]):
+          odds: Annotated[str, typer.Argument(help = 'Odds (any format)')]):
     odds = support.castType(odds)
     print(support.tableStake('Payout & Profit', float(stake), odds))
 

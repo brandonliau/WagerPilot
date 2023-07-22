@@ -1,8 +1,9 @@
 # Local imports
-import wagerpilot.getData as get
-import wagerpilot.arbitrage as arb
 import wagerpilot.utils as util
 import wagerpilot.odds as odd
+import wagerpilot.probability as prob
+import wagerpilot.getData as get
+import wagerpilot.arbitrage as arb
 
 def payout(stake: float, odds: int|float|str) -> float:
     """
@@ -10,8 +11,7 @@ def payout(stake: float, odds: int|float|str) -> float:
     :return: Payout
     :usage: Calculate payout of a bet
     """
-    payout = odd.toDecimal(odds) * stake
-    return payout
+    return odd.toDecimal(odds) * stake
 
 def profit(stake: float, odds: int|float|str) -> float:
     """
@@ -19,8 +19,7 @@ def profit(stake: float, odds: int|float|str) -> float:
     :return: Profit
     :usage: Calculate profit of a bet
     """
-    profit = payout(stake, odds) - stake
-    return profit
+    return payout(stake, odds) - stake
 
 def expectedValue(toBet: str, homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:
     """
@@ -28,7 +27,7 @@ def expectedValue(toBet: str, homeOdds: float, awayOdds: float, drawOdds: float 
     :return: Expected value for given bet
     :usage: Calculate the expected value for a bet given the odds of an event
     """
-    trueProb = odd.trueProability(homeOdds, awayOdds, drawOdds)
+    trueProb = prob.trueProability(homeOdds, awayOdds, drawOdds)
     homeOdds, awayOdds, drawOdds = odd.toDecimal(homeOdds), odd.toDecimal(awayOdds), odd.toDecimal(drawOdds)
     if toBet == 'home':
         winProb = trueProb['homeTrue']

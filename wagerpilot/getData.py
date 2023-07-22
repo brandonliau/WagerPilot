@@ -1,14 +1,15 @@
+# Local imports
 import wagerpilot.utils as util
 
 def activeSports(writeToFile: bool = False, fileName: str = None) -> list:
     """
-    :param: None
+    :param: writeToFile (y/n to write output to json), fileName (name of output file)
     :return: All active sports excluding those with outrights
     :usage: Processes raw sports data
     """
     activeSports = []
     for sport in util.sportsAPI():
-        if sport['active'] == True and sport['has_outrights'] == False: 
+        if sport['active'] == True and sport['has_outrights'] == False:
             activeSports.append(sport['key'])
     if writeToFile == True:
         util.writeToJson(activeSports, fileName)
@@ -16,7 +17,7 @@ def activeSports(writeToFile: bool = False, fileName: str = None) -> list:
 
 def activeEvents(writeToFile: bool = False, fileName: str = None) -> dict:
     """
-    :param: None
+    :param: writeToFile (y/n to write output to json), fileName (name of output file)
     :return: All active events, competeting teams, and draw possiblility
     :usage: Processes raw event data
     """
