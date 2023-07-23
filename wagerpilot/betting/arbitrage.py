@@ -1,5 +1,5 @@
-import wagerpilot.utils as util
-import wagerpilot.getData as get
+import wagerpilot.tools.apiUtils as util
+import wagerpilot.cli.getData as get
 
 def findArbitrage(readFileName: str = None, writeToFile: bool = True, writefileName: str = None) -> dict:
     """

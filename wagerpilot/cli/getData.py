@@ -1,21 +1,27 @@
 # Local imports
-import wagerpilot.utils as util
+import wagerpilot.tools.apiUtils as util
+import wagerpilot.tools.dbUtils as db
 
-def activeSports(writeToFile: bool = False, fileName: str = None) -> list:
+def activeSports(writeToDb: bool = False) -> list:
     """
-    :param: writeToFile (y/n to write output to json), fileName (name of output file)
+    :param: writeToDb (y/n to write to database)
     :return: All active sports excluding those with outrights
     :usage: Processes raw sports data
     """
-    activeSports = []
-    for sport in util.sportsAPI():
-        if sport['active'] == True and sport['has_outrights'] == False:
-            activeSports.append(sport['key'])
-    if writeToFile == True:
-        util.writeToJson(activeSports, fileName)
-    return activeSports
+    activeSports, toReturn = [], []
+    for item in util.sportsAPI():
+        if item['active'] and not item['has_outrights']:
+            toReturn.append(item['key'])
+            sport = {'key': item['key'],
+                     'group': item['group'],
+                     'title': item['title'],
+                     'description': item['description']}
+            activeSports.append(sport)
+    if writeToDb:
+        db.insertMany('WagerSports', 'activeSports', activeSports)
+    return toReturn
 
-def activeEvents(writeToFile: bool = False, fileName: str = None) -> dict:
+def activeEvents(writeToDb: bool = False) -> list:
     """
     :param: writeToFile (y/n to write output to json), fileName (name of output file)
     :return: All active events, competeting teams, and draw possiblility
@@ -30,7 +36,7 @@ def activeEvents(writeToFile: bool = False, fileName: str = None) -> dict:
                     if len(item['markets'][0]['outcomes']) == 3:
                         draw = True
             activeEvents[event['id']] = {'homeTeam': event['home_team'], 'awayTeam': event['away_team'], 'draw': draw}
-    if writeToFile == True:
+    if writeToFile:
         util.writeToJson(activeEvents, fileName)
     return activeEvents
 

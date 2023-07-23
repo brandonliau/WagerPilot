@@ -3,7 +3,8 @@ from typing import Annotated
 # Third party imports
 import typer
 # Local imports
-import wagerpilot.pilotSupport as support
+import wagerpilot.cliSupport.pilotSupport as support
+import wagerpilot.cliSupport.dbSupport as support
 import wagerpilot.odds as odd
 
 app = typer.Typer()
@@ -30,7 +31,7 @@ def vig(homeodds: Annotated[str, typer.Argument(help = 'Odds for home team')],
     print(support.tableVig('Implied Probability & Vig', homeodds, awayodds, drawodds))
 
 @app.command()
-def trueprob(homeodds: Annotated[str, typer.Argument(help = 'Odds for home team')],
+def true(homeodds: Annotated[str, typer.Argument(help = 'Odds for home team')],
          awayodds: Annotated[str, typer.Argument(help = 'Odds for away team')],
          drawodds: Annotated[str, typer.Argument(help = 'Odds for draw')] = 0):    
     odds = [homeodds, awayodds, drawodds]

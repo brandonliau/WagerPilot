@@ -1,9 +1,9 @@
 # Local imports
-import wagerpilot.utils as util
-import wagerpilot.odds as odd
-import wagerpilot.probability as prob
-import wagerpilot.getData as get
-import wagerpilot.arbitrage as arb
+import wagerpilot.tools.utils as util
+import wagerpilot.betting.odds as odd
+import wagerpilot.betting.probability as prob
+import wagerpilot.cli.getData as get
+import wagerpilot.betting.arbitrage as arb
 
 def payout(stake: float, odds: int|float|str) -> float:
     """

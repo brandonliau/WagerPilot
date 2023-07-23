@@ -1,4 +1,6 @@
 __pycache__
 .python-version
-*.json
+.DS_store
+data/
 config.py
+ignore/

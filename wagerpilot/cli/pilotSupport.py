@@ -1,9 +1,9 @@
 # Third party imports
 from prettytable import PrettyTable
 # Local imports
-import wagerpilot.odds as odd
-import wagerpilot.probability as prob
-import wagerpilot.payout as pay
+import wagerpilot.betting.odds as odd
+import wagerpilot.betting.probability as prob
+import wagerpilot.betting.payout as pay
 
 def castType(odds: str) -> int|float|str:
     if odds[0] in ('-', '+') or odds.isdigit():
@@ -39,13 +39,13 @@ def tableVig(title: str, homeodds: int|float|str, awayodds: int|float|str, drawo
     table.field_names = ['col1', 'col2']
     table.header = False
     table.add_row(['Total Implied Probability', f'{round(prob.totalImpliedProbability(homeodds, awayodds, drawodds) * 100, 2)}%'])
-    table.add_row(['Vigorish', f'{round(odd.vig(homeodds, awayodds, drawodds) * 100, 2)}%'])
+    table.add_row(['Vigorish', f'{round(prob.vig(homeodds, awayodds, drawodds) * 100, 2)}%'])
     table.align['col1'] = 'l'
     table.align['col2'] = 'r'
     return table
 
 def tableTrue(title: str, homeodds: int|float|str, awayodds: int|float|str, drawodds: int|float|str):
-    odds = odd.trueProability(homeodds, awayodds, drawodds)
+    odds = prob.trueProability(homeodds, awayodds, drawodds)
     homeOdds, awayOdds, drawOdds = odds['homeTrue'], odds['awayTrue'], odds['drawTrue']
     table = PrettyTable()
     table.title = title
@@ -60,7 +60,7 @@ def tableTrue(title: str, homeodds: int|float|str, awayodds: int|float|str, draw
     return table
 
 def tableFair(title: str, homeodds: int|float|str, awayodds: int|float|str, drawodds: int|float|str) -> PrettyTable:
-    odds = odd.fairOdds(homeodds, awayodds, drawodds)
+    odds = prob.fairOdds(homeodds, awayodds, drawodds)
     homeOdds, awayOdds, drawOdds = odds['homeFair'], odds['awayFair'], odds['drawFair']
     table = PrettyTable()
     table.title = title

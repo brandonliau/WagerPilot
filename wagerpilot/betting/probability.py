@@ -1,6 +1,6 @@
 # Local imports
-import wagerpilot.utils as util
-import wagerpilot.odds as odd
+import wagerpilot.tools.utils as util
+import wagerpilot.betting.odds as odd
 
 def impliedProbability(odds: int|float|str) -> float:
     """
