@@ -3,7 +3,7 @@ import wagerpilot.tools.utils as util
 import wagerpilot.betting.odds as odd
 import wagerpilot.betting.probability as prob
 import wagerpilot.cli.getData as get
-import wagerpilot.betting.arbitrage as arb
+import ignore.arbitrage as arb
 
 def payout(stake: float, odds: int|float|str) -> float:
     """

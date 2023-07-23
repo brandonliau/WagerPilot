@@ -17,12 +17,4 @@ def deleteDoc(database: str, collection: str, item: dict):
 
 def deleteMany(database: str, collection: str, item: dict):
     client = MongoClient(con.mongoConnectionString)
-    client[database][collection].delete_many(item)
-
-def findDoc():
-    pass
-
-def readFromCollection(database: str, collection: str):
-    client = MongoClient(con.mongoConnectionString)
-    
-    for item in client[database][collection]:
+    client[database][collection].delete_many(item)  
