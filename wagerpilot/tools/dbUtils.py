@@ -3,6 +3,11 @@ from pymongo import MongoClient
 # Local imports
 import wagerpilot.config as con
 
+def getCollection(database: str, collection: str):
+    client = MongoClient(con.mongoConnectionString)
+    col = client[database][collection]
+    return col
+
 def insertDoc(database: str, collection: str, item: dict):
     client = MongoClient(con.mongoConnectionString)
     client[database][collection].insert_one(item)

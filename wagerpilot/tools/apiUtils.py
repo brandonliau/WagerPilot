@@ -1,5 +1,3 @@
-# Standard library imports
-import time, json
 # Third party imports
 import requests
 # Local imports

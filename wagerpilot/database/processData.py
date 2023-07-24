@@ -1,18 +1,14 @@
 # Standard library imports
 from datetime import datetime
-# Third party imports
-from pymongo import MongoClient
 # Local imports
-import wagerpilot.config as con
 import wagerpilot.tools.apiUtils as util
 import wagerpilot.tools.dbUtils as db
 import wagerpilot.database.dataSupport as ds
-import wagerpilot.support.bookmakers as bookie
 
 def activeSports(writeToDb: bool = False) -> list:
     """
     :param: writeToDb (y/n to write to database)
-    :return: All active sports excluding those with outrights
+    :return: All active sports excluding outrights
     :usage: Processes raw sports data
     """
     activeSports = []
@@ -30,13 +26,15 @@ def activeSports(writeToDb: bool = False) -> list:
 def activeEvents(writeToDb: bool = False) -> list:
     """
     :param: writeToDb (y/n to write to database)
-    :return: All active events, competeting teams, and draw possiblility
+    :return: All active events, competeting teams, and bookmaker odds
     :usage: Processes raw event data
     """
     activeEvents = []
-    sports = db.retrieveSports('WagerSports', 'activeSports', {'key':1, '_id':0})
+    sports = ds.retrieveSports()
     for sport in sports:
         for event in util.eventsAPI(sport):
+            if len(event['bookmakers']) == 0:
+                continue
             dt = datetime.fromisoformat(event['commence_time'])
             homeTeam, awayTeam = event['home_team'], event['away_team']
             parsedOdds = ds.parseOdds(event, homeTeam, awayTeam)
@@ -55,18 +53,17 @@ def activeEvents(writeToDb: bool = False) -> list:
         db.insertMany('WagerSports', 'activeEvents', activeEvents)
     return activeEvents
 
-def bestOdds(writeToDb: bool = False) -> dict:
+def bestOdds(writeToDb: bool = False) -> list:
     """
     :param: writeToDb (y/n to write to database)
-    :return: All active events, competing teams, best odds, and best bookmakers
+    :return: All active events, competing teams, best bookmakers odds
     :usage: Processes raw event data
     """
     bestOdds = []
-    client = MongoClient(con.mongoConnectionString)
-    collection = client['WagerSports']['activeEvents']
+    collection = db.getCollection('WagerSports', 'activeEvents')
     for event in collection.find({}):
-        bestHome = ds.findBestOdds(event['home_odds'])
-        bestAway = ds.findBestOdds(event['away_odds'])
+        bestHome = ds.findBest(event['home_odds'])
+        bestAway = ds.findBest(event['away_odds'])
         data = {'id': event['id'],
                 'sport_key': event['sport_key'],
                 'commence_date': event['commence_date'],
@@ -76,9 +73,30 @@ def bestOdds(writeToDb: bool = False) -> dict:
                 'home_odds': bestHome,
                 'away_odds': bestAway,}
         if 'draw_odds' in event:
-            bestDraw = ds.findBestOdds(event['draw_odds'])
+            bestDraw = ds.findBest(event['draw_odds'])
             data['draw_odds'] = bestDraw
         bestOdds.append(data)
     if writeToDb:
         db.insertMany('WagerSports', 'bestOdds', bestOdds)
     return bestOdds
+
+def arbitrageOdds(writeToDb: bool = False):
+    arbitrageOdds = []
+    collection = db.getCollection('WagerSports', 'bestOdds')
+    for event in collection.find({}):
+        data = {'id': event['id'],
+                'sport_key': event['sport_key'],
+                'commence_date': event['commence_date'],
+                'commence_time': event['commence_time'],
+                'home_team': event['home_team'],
+                'away_team': event['away_team'],}
+        regions = list(event['home_odds'])
+        regions.extend(x for x in list(event['away_odds']) if x not in regions)
+        for region in regions:
+            parsedOdds = ds.parseArbitrage(event, region)
+            data[region] = parsedOdds
+        if data['best']['implied_probability'] < 1:
+            arbitrageOdds.append(data)
+    if writeToDb and len(arbitrageOdds) > 0:
+        db.insertMany('WagerSports', 'arbitrageOdds', arbitrageOdds)
+    return arbitrageOdds
