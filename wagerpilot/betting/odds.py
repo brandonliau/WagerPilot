@@ -3,11 +3,6 @@ import math
 from fractions import Fraction
 
 def toDecimal(odds: int|float|str) -> float:
-    """
-    :param: Odds (any format)
-    :return: Odds in decimal format
-    :usage: Convert odds to decimal format
-    """
     if isinstance(odds, float): # Nothing to convert
         return odds
     elif isinstance(odds, int): # Convert American to decimal
@@ -19,11 +14,6 @@ def toDecimal(odds: int|float|str) -> float:
         return float(Fraction(odds) + 1)
         
 def toAmerican(odds: int|float|str) -> str:
-    """
-    :param: Odds (any format)
-    :return: Odds in American format
-    :usage: Convert odds to American format
-    """
     if isinstance(odds, int): # Nothing to convert
         pass
     elif isinstance(odds, float): # Convert decimal to American
@@ -42,11 +32,6 @@ def toAmerican(odds: int|float|str) -> str:
     return(f'{odds}')
 
 def toFractional(odds: int|float|str) -> Fraction:
-    """
-    :param: Odds (any format)
-    :return: Odds in fractional format
-    :usage: Convert odds to fractional format
-    """
     if isinstance(odds, str): # Nothing to convert
         return odds
     elif isinstance(odds, float): # Convert decimal to fractional
@@ -60,9 +45,4 @@ def toFractional(odds: int|float|str) -> Fraction:
     return odds
 
 def parlayOdds(odds: int|float|str) -> float:
-    """
-    :param: List of odds (any format)
-    :return: Overall parlay odds
-    :usage: Calculate overall odds for a parlay
-    """
     return math.prod(list(map(toDecimal, odds)))

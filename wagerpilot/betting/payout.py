@@ -3,27 +3,12 @@ import wagerpilot.betting.odds as odd
 import wagerpilot.betting.probability as prob
 
 def payout(stake: float, odds: int|float|str) -> float:
-    """
-    :param: stake, odds (any format)
-    :return: Payout
-    :usage: Calculate payout of a bet
-    """
     return odd.toDecimal(odds) * stake
 
 def profit(stake: float, odds: int|float|str) -> float:
-    """
-    :param: stake, odds (any format)
-    :return: Profit
-    :usage: Calculate profit of a bet
-    """
     return payout(stake, odds) - stake
 
 def expectedValue(toBet: str, homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:
-    """
-    :param: toBet (team to bet on), homeOdds, awayOdds, drawOdds (any format)
-    :return: Expected value for given bet
-    :usage: Calculate the expected value for a bet given the odds of an event
-    """
     trueProb = prob.trueProability(homeOdds, awayOdds, drawOdds)
     homeOdds, awayOdds, drawOdds = odd.toDecimal(homeOdds), odd.toDecimal(awayOdds), odd.toDecimal(drawOdds)
     if toBet == 'home':
