@@ -14,30 +14,15 @@ class Config:
     markets: list = None
     tokens: SortedList = None
 
-    def load_config(self, filename: str):
+    async def load_config(self, filename: str):
         with open(filename, 'r') as f:
             data = yaml.safe_load(f)
+        tasks = [self.__token_usage(i) for i in data['tokens']]
+        results = await asyncio.gather(*tasks)
         self.bookies = data['bookies']
         self.bookies_string = ",".join(str(i) for i in data['bookies'])
         self.markets = data['markets']
-        self.tokens = SortedList([(list(i.keys())[0], list(i.values())[0]) for i in data['tokens']], key=lambda x: -x[1])
-
-    def save_config(self, filename: str):
-        data = {
-            'bookies': self.bookies,
-            'markets': self.markets,
-            'tokens': [{k: v} for k, v in self.tokens]
-        }
-        with open(filename, 'w') as f:
-            yaml.safe_dump(data, f, default_flow_style=False)
-
-    async def sync_usage(self):
-        tasks = [self.__token_usage(i) for i, _ in self.tokens]
-        results = await asyncio.gather(*tasks)
-        temp = []
-        for i, j in zip(self.tokens, results):
-            temp.append((i[0], j))
-        self.tokens = SortedList(temp, key=lambda x: -x[1])
+        self.tokens = SortedList(zip(data['tokens'], results), key=lambda x: -x[1])
 
     def get_sports(self) -> list:
         token, prev_usage = self.__get_token()
@@ -59,6 +44,8 @@ class Config:
             'oddsFormat': 'decimal',
         }
         resp = requests.get(base_url, params=params)
+        if resp.status_code != 200:
+            return None
         self.__update_usage(token, prev_usage, int(resp.headers['X-Requests-Remaining']))
         return resp.json()
 
