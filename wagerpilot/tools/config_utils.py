@@ -12,7 +12,6 @@ class Config:
     bookies: list = None
     bookies_string: str = None
     markets: list = None
-    markets_string: str = None
     tokens: SortedList = None
 
     def load_config(self, filename: str):

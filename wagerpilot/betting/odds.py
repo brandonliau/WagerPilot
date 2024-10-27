@@ -43,6 +43,3 @@ def toFractional(odds: int|float|str) -> Fraction:
     if odds.denominator == 1:
         return (f'{odds}/1')
     return odds
-
-def parlayOdds(odds: int|float|str) -> float:
-    return math.prod(list(map(toDecimal, odds)))
