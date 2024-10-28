@@ -8,7 +8,7 @@ def payout(stake: float, odds: int|float|str) -> float:
 def profit(stake: float, odds: int|float|str) -> float:
     return payout(stake, odds) - stake
 
-def expectedValue(toBet: str, homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:
+def expected_value(toBet: str, homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:
     trueProb = prob.trueProability(homeOdds, awayOdds, drawOdds)
     homeOdds, awayOdds, drawOdds = odd.toDecimal(homeOdds), odd.toDecimal(awayOdds), odd.toDecimal(drawOdds)
     if toBet == 'home':

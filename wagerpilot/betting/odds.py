@@ -2,7 +2,7 @@
 import math
 from fractions import Fraction
 
-def toDecimal(odds: int|float|str) -> float:
+def to_decimal(odds: int|float|str) -> float:
     if isinstance(odds, float): # Nothing to convert
         return odds
     elif isinstance(odds, int): # Convert American to decimal
@@ -13,7 +13,7 @@ def toDecimal(odds: int|float|str) -> float:
     elif isinstance(odds, str): # Convert fractional to decimal
         return float(Fraction(odds) + 1)
         
-def toAmerican(odds: int|float|str) -> str:
+def to_american(odds: int|float|str) -> str:
     if isinstance(odds, int): # Nothing to convert
         pass
     elif isinstance(odds, float): # Convert decimal to American
@@ -31,7 +31,7 @@ def toAmerican(odds: int|float|str) -> str:
         return(f'+{odds}')
     return(f'{odds}')
 
-def toFractional(odds: int|float|str) -> Fraction:
+def to_fractional(odds: int|float|str) -> Fraction:
     if isinstance(odds, str): # Nothing to convert
         return odds
     elif isinstance(odds, float): # Convert decimal to fractional
