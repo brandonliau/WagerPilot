@@ -1,6 +1,8 @@
 # Third party imports
 import pandas as pd
 # Local imports
+from wagerpilot.tools.config_utils import Config
+from wagerpilot.tools.api_utils import get_events
 from wagerpilot.betting.probability import total_implied_probability
 
 def process_h2h_data(data: list) -> tuple:
@@ -57,3 +59,18 @@ def process_h2h_data(data: list) -> tuple:
     events_df = events_df.dropna(axis=1, how='all')
 
     return events_df, odds_df
+
+def get_h2h_data(config: Config, sports: list) -> dict:
+    all_h2h_data = {}
+    for sport in sports:
+        event_data = get_events(config, sport['key'], 'h2h')
+        if not event_data:
+            print(f"Invalid parameter combination : ['sport_key': {sport['key']}, 'market': 'h2h']")
+            continue
+        h2h_data = process_h2h_data(event_data)
+        if not h2h_data:
+            print(f"Missing bookmaker data : {event_data}")
+            continue
+        print(event_data)
+        all_h2h_data[sport['key']] = h2h_data
+    return all_h2h_data

@@ -1,16 +1,16 @@
 # Local imports
-import wagerpilot.betting.odds as odd
-import wagerpilot.betting.probability as prob
+from wagerpilot.betting.odds import to_decimal
+from wagerpilot.betting.probability import true_proability
 
 def payout(stake: float, odds: int|float|str) -> float:
-    return odd.toDecimal(odds) * stake
+    return to_decimal(odds) * stake
 
 def profit(stake: float, odds: int|float|str) -> float:
     return payout(stake, odds) - stake
 
 def expected_value(toBet: str, homeOdds: float, awayOdds: float, drawOdds: float = None) -> float:
-    trueProb = prob.trueProability(homeOdds, awayOdds, drawOdds)
-    homeOdds, awayOdds, drawOdds = odd.toDecimal(homeOdds), odd.toDecimal(awayOdds), odd.toDecimal(drawOdds)
+    trueProb = true_proability(homeOdds, awayOdds, drawOdds)
+    homeOdds, awayOdds, drawOdds = to_decimal(homeOdds), to_decimal(awayOdds), to_decimal(drawOdds)
     if toBet == 'home':
         winProb = trueProb['homeTrue']
         winProfit = profit(1, homeOdds)
