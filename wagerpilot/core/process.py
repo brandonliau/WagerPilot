@@ -69,9 +69,11 @@ def process_h2h_data(data: list) -> tuple:
     df = pd.json_normalize(
         data,
         record_path=['bookmakers', 'markets', 'outcomes'],
-        meta=['id', 'home_team', 'away_team', 'commence_time', ['bookmakers', 'key']],
+        meta=['id', 'sport_key', 'home_team', 'away_team', 'commence_time', ['bookmakers', 'key']],
         errors='raise'
     )
+    if df.empty:
+        return None
     # Rename columns for clarity
     df.rename(columns={
         'bookmakers.key': 'bookmaker',
@@ -81,8 +83,8 @@ def process_h2h_data(data: list) -> tuple:
     )
     # Ensure the outcome prices are numeric
     df['outcome_price'] = pd.to_numeric(df['outcome_price'], errors='coerce')
-    bookie_cols = list(df['bookmaker'].unique())
-
+    bookie_cols = df['bookmaker'].unique().tolist()
+    
     # Create odds_df DataFrame
     odds_df = df.pivot(index=['id', 'outcome_name'], columns='bookmaker', values='outcome_price').reset_index()
     # Reorder DataFrame to match original df
@@ -90,39 +92,32 @@ def process_h2h_data(data: list) -> tuple:
     odds_df.columns.name = None
 
     # Create events_df DataFrame
-    events_df = df[['id', 'commence_time', 'home_team', 'away_team']].drop_duplicates().reset_index(drop=True)
-    events_df = events_df.merge(odds_df[['id', 'outcome_name'] + bookie_cols], on='id', how='left')
-    # Create columns to store max home_odds, away_odds, and draw_odds
-    events_df['home_odds'] = events_df.loc[events_df['outcome_name'] == events_df['home_team'], bookie_cols].max(axis=1)
-    events_df['away_odds'] = events_df.loc[events_df['outcome_name'] == events_df['away_team'], bookie_cols].max(axis=1)
-    events_df['draw_odds'] = events_df.loc[events_df['outcome_name'] == 'Draw', bookie_cols].max(axis=1)
-
-    # Create a DataFrame that contains True where values match
-    home_matches = events_df[bookie_cols].eq(events_df['home_odds'], axis=0)
-    away_matches = events_df[bookie_cols].eq(events_df['away_odds'], axis=0)
-    draw_matches = events_df[bookie_cols].eq(events_df['draw_odds'], axis=0)
+    events_df = df[['id', 'sport_key', 'commence_time', 'home_team', 'away_team']].drop_duplicates().reset_index(drop=True)
+    # Create columns to store max odds
+    outcome_odds = odds_df.set_index(['id', 'outcome_name'])
+    events_df['home_odds'] = events_df.apply(lambda x: outcome_odds.loc[(x['id'], x['home_team'])][bookie_cols].max() if (x['id'], x['home_team']) in outcome_odds.index else None, axis=1)
+    events_df['away_odds'] = events_df.apply(lambda x: outcome_odds.loc[(x['id'], x['away_team'])][bookie_cols].max() if (x['id'], x['away_team']) in outcome_odds.index else None, axis=1)
+    events_df['draw_odds'] = events_df.apply(lambda x: outcome_odds.loc[(x['id'], 'Draw')][bookie_cols].max() if (x['id'], 'Draw') in outcome_odds.index else None, axis=1)
+    
     # Create columns to store bookmakers of max odds
-    events_df['home_bookmaker'] = [home_matches.columns[row].tolist() for row in home_matches.to_numpy()]
-    events_df['away_bookmaker'] = [away_matches.columns[row].tolist() for row in away_matches.to_numpy()]
-    events_df['draw_bookmaker'] = [draw_matches.columns[row].tolist() for row in draw_matches.to_numpy()]
-    # Replace empty lists with NaN in home_bookmaker, away_bookmaker, and draw_bookmaker
-    max_bookie_cols = ['home_bookmaker', 'away_bookmaker', 'draw_bookmaker']
-    events_df[max_bookie_cols] = events_df[max_bookie_cols].apply(lambda col: col.apply(lambda x: None if x == [] else x))
-
-    # Merge rows with matching event id's and aggregate the home_odds, away_odds, and draw_odds data into a single row
-    events_df = events_df.groupby('id').agg(lambda x: x.dropna().iloc[0] if not x.dropna().empty else None).reset_index()
-
-    # Reorder DataFrame to match original df
-    events_df = events_df.merge(df['id'].drop_duplicates(), on=['id'], how='right')
-    # Drop extraneous columns (outcome_name and bookie_cols)
-    events_df = events_df.drop(columns=['outcome_name'] + bookie_cols)
+    def get_max_bookmaker(row, outcome_name):
+        if (row['id'], outcome_name) in outcome_odds.index:
+            odds = outcome_odds.loc[(row['id'], outcome_name)][bookie_cols]
+            return odds[odds == odds.max()].index.tolist() if not odds.isna().all() else None
+        return None
+    events_df['home_bookmaker'] = events_df.apply(lambda x: get_max_bookmaker(x, x['home_team']), axis=1)
+    events_df['away_bookmaker'] = events_df.apply(lambda x: get_max_bookmaker(x, x['away_team']), axis=1)
+    events_df['draw_bookmaker'] = events_df.apply(lambda x: get_max_bookmaker(x, 'Draw'), axis=1)
+    
     # Create column to store implied probability
     events_df['implied_prob'] = events_df.apply(lambda x: totalImpliedProbability(x['home_odds'], x['away_odds'], x['draw_odds']), axis=1)
     # Create column to store whether event contains arbitrage opportunity
     events_df['arbitrage'] = events_df['implied_prob'] < 1
 
-    return (events_df, odds_df)
+    # Drop draw_odds and draw_bookmaker if all values are NaN
+    events_df = events_df.dropna(axis=1, how='all')
 
+    return events_df, odds_df
 
 # def clean_data(df: pd.DataFrame):
     
