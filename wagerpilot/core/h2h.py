@@ -60,7 +60,7 @@ def process_h2h_data(data: list) -> tuple:
 
     return events_df, odds_df
 
-def get_h2h_data(config: Config, sports: list) -> dict:
+def get_all_h2h_data(config: Config, sports: list) -> dict:
     all_h2h_data = {}
     for sport in sports:
         event_data = get_events(config, sport['key'], 'h2h')
