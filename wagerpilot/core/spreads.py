@@ -3,7 +3,7 @@ import pandas as pd
 # Local imports
 from wagerpilot.tools.config_utils import Config
 from wagerpilot.tools.api_utils import get_events
-from wagerpilot.betting.probability import total_implied_probability
+from wagerpilot.math.probability import total_implied_probability
 
 def process_spreads_data(data: list) -> tuple:
     # Flatten JSON data into a DataFrame
@@ -41,7 +41,7 @@ def process_spreads_data(data: list) -> tuple:
     outcome_odds = odds_df.set_index(['id', 'outcome_name'])
 
     # Merge all spread values into the events_df    
-    spreads_df = outcome_odds.merge(events_df[['id', 'home_team', 'away_team']], on='id', how='left')[['id', 'spread_val']]
+    spreads_df = outcome_odds.merge(events_df[['id']], on='id', how='left')[['id', 'spread_val']]
     spreads_df = spreads_df.assign(abs_spread_val = lambda x: x['spread_val'].abs())
     unique_spreads = spreads_df.drop_duplicates(subset=['id', 'abs_spread_val'])[['id', 'abs_spread_val']]
     unique_spreads = unique_spreads.rename(columns={'abs_spread_val': 'spread_val'})
@@ -60,7 +60,6 @@ def process_spreads_data(data: list) -> tuple:
     # Create columns to store bookmakers of max odds
     def get_max_bookmaker(row, spread_val):
         if (row['id'], row['home_team'], spread_val) in outcome_odds.index:
-            # print('exist', row['id'], outcome_name, spread_val)
             odds = outcome_odds.loc[(row['id'], row['home_team'], spread_val)][bookie_cols]
             return odds[odds == odds.max()].index.tolist() if not odds.isna().all() else None
         elif (row['id'], row['away_team'], spread_val) in outcome_odds.index:
@@ -77,7 +76,7 @@ def process_spreads_data(data: list) -> tuple:
 
     return events_df, odds_df
 
-def get_all_spreads_data(config: Config, sports: list) -> dict:
+def process_all_spreads_data(config: Config, sports: list) -> dict:
     all_spreads_data = {}
     for sport in sports:
         event_data = get_events(config, sport['key'], 'spreads')

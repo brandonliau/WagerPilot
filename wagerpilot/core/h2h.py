@@ -3,7 +3,7 @@ import pandas as pd
 # Local imports
 from wagerpilot.tools.config_utils import Config
 from wagerpilot.tools.api_utils import get_events
-from wagerpilot.betting.probability import total_implied_probability
+from wagerpilot.math.probability import total_implied_probability
 
 def process_h2h_data(data: list) -> tuple:
     # Flatten JSON data into a DataFrame
@@ -60,7 +60,7 @@ def process_h2h_data(data: list) -> tuple:
 
     return events_df, odds_df
 
-def get_all_h2h_data(config: Config, sports: list) -> dict:
+def process_all_h2h_data(config: Config, sports: list) -> dict:
     all_h2h_data = {}
     for sport in sports:
         event_data = get_events(config, sport['key'], 'h2h')

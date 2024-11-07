@@ -1,5 +1,5 @@
 # Local imports
-from wagerpilot.betting.odds import to_decimal
+from wagerpilot.math.odds import to_decimal
 
 def div(x: float, y: float) -> float:
     try:

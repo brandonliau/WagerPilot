@@ -1,6 +1,6 @@
 # Local imports
-from wagerpilot.betting.odds import to_decimal
-from wagerpilot.betting.probability import true_proability
+from wagerpilot.math.odds import to_decimal
+from wagerpilot.math.probability import true_proability
 
 def payout(stake: float, odds: int|float|str) -> float:
     return to_decimal(odds) * stake
